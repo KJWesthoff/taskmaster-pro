@@ -31,9 +31,11 @@ var loadTasks = function() {
     };
   }
 
+
+
   // loop over object properties
   $.each(tasks, function(list, arr) {
-    console.log(list, arr);
+    //console.log(list, arr);
     // then loop over sub-array
     arr.forEach(function(task) {
       createTask(task.text, task.date, list);
@@ -44,6 +46,36 @@ var loadTasks = function() {
 var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
+
+
+$(".list-group").on("click", "p", function() {
+  var text = $(this).text().trim();
+  console.log(text);
+  var textInput = $("<textarea>").addClass("form-control").val(text);
+  $(this).replaceWith(textInput);
+  textInput.trigger("focus");
+});
+
+// blur happnes when user goes out of the text area
+$(".list-group").on("blur", "textarea", function() {
+// get current value/text
+var text = $(this).val().trim()
+
+//get id
+var status = $(this).closest(".list-group").attr("id").replace("list-", "")
+
+//position
+var index = $(this).closest(".list-group-item").index()
+
+tasks[status][index].text = text;
+saveTasks();
+
+//switch text area back to a p
+var taskP = $("<p>").addClass("m-1").text(text);
+$(this).replaceWith(taskP);
+
+
+});
 
 
 

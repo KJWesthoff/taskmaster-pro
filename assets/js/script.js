@@ -47,7 +47,7 @@ var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
-
+// event listener on list p
 $(".list-group").on("click", "p", function() {
   var text = $(this).text().trim();
   console.log(text);
@@ -56,7 +56,7 @@ $(".list-group").on("click", "p", function() {
   textInput.trigger("focus");
 });
 
-// blur happnes when user goes out of the text area
+// event listener on list-group blur happnes when user goes out of the text area
 $(".list-group").on("blur", "textarea", function() {
 // get current value/text
 var text = $(this).val().trim()
@@ -78,6 +78,36 @@ $(this).replaceWith(taskP);
 });
 
 
+// click due date event listener
+$(".list-group").on("click", "span", function(){
+// get the text
+var date = $(this).text().trim();
+
+//new date
+var dateInput = $("<input>").attr("type","text").addClass("form-control").val(date);
+
+$(this).replaceWith(dateInput);
+dateInput.trigger("focus");
+});
+
+//blur date eventlistener
+$(".list-group").on("blur", "input[type='text']",function(){
+  
+  // get items info text and where it belongs
+  var date = $(this).val().trim();
+  var status = $(this).closest(".list-group").attr("id").replace("list-", "");
+  var index = $(this).closest(".list-group-item").index();
+
+  console.log(date, status, index);
+  // update and save tasks
+  tasks[status][index].date = date;
+  saveTasks();
+  
+  //recreate date as a span element with correct bootstrap class and replace input with span  
+  var taskSpan = $("<span>").addClass("badge badge-primary badge-pill").text(date);
+  $(this).replaceWith(taskSpan);
+
+});
 
 
 // modal was triggered

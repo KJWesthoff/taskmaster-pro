@@ -3,20 +3,19 @@ var tasks = {};
 var createTask = function(taskText, taskDate, taskList) {
   // create elements that make up a task item
   var taskLi = $("<li>").addClass("list-group-item");
-  var taskSpan = $("<span>")
-    .addClass("badge badge-primary badge-pill")
-    .text(taskDate);
-  var taskP = $("<p>")
-    .addClass("m-1")
-    .text(taskText);
+  
+  var taskSpan = $("<span>").addClass("badge badge-primary badge-pill").text(taskDate);
+  var taskP = $("<p>").addClass("m-1").text(taskText);
 
   // append span and p element to parent li
   taskLi.append(taskSpan, taskP);
 
+  auditTask(taskLi);
 
   // append to ul list on the page
   $("#list-" + taskList).append(taskLi);
 };
+
 
 var loadTasks = function() {
   tasks = JSON.parse(localStorage.getItem("tasks"));
@@ -32,6 +31,7 @@ var loadTasks = function() {
   }
 
 
+  
 
   // loop over object properties
   $.each(tasks, function(list, arr) {
@@ -43,9 +43,12 @@ var loadTasks = function() {
   });
 };
 
+
 var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
+
+
 
 // event listener on list p
 $(".list-group").on("click", "p", function() {
@@ -101,6 +104,7 @@ $(".list-group").on("click", "span", function(){
 
 
 
+
 //blur date eventlistener
 $(".list-group").on("change", "input[type='text']",function(){
   
@@ -109,7 +113,6 @@ $(".list-group").on("change", "input[type='text']",function(){
   var status = $(this).closest(".list-group").attr("id").replace("list-", "");
   var index = $(this).closest(".list-group-item").index();
 
-  console.log(date, status, index);
   // update and save tasks
   tasks[status][index].date = date;
   saveTasks();
@@ -118,6 +121,8 @@ $(".list-group").on("change", "input[type='text']",function(){
   var taskSpan = $("<span>").addClass("badge badge-primary badge-pill").text(date);
   $(this).replaceWith(taskSpan);
 
+  // audit task
+  auditTask($(taskSpan).closest(".list-group-item"));
 });
 
 
@@ -176,6 +181,8 @@ $(".card .list-group").sortable({
 });
 
 
+
+
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function() {
   // clear values
@@ -210,6 +217,8 @@ $("#task-form-modal .btn-primary").click(function() {
   }
 });
 
+
+
 $("#trash").droppable({
   accept: ".card .list-group-item",
   tolerance: "touch",
@@ -225,6 +234,7 @@ $("#trash").droppable({
   },
 })
 
+
 // remove all tasks
 $("#remove-tasks").on("click", function() {
   for (var key in tasks) {
@@ -234,11 +244,38 @@ $("#remove-tasks").on("click", function() {
   saveTasks();
 });
 
-// load tasks for the first time
-loadTasks();
+
+
 
 $("#modalDueDate").datepicker({
   minDate: 1
 });
 
 
+var auditTask = function(taskEl){
+  // get date from task
+  var date = $(taskEl).find("span").text().trim();
+  
+  // put in a moment obj
+  var time = moment(date, "L").set("hour", 17);
+  
+
+  // re-paint the card - remove old calsses form element
+  $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
+  
+  if (moment().isAfter(time)) {
+    $(taskEl).addClass("list-group-item-danger");
+  } else if (Math.abs(moment().diff(time, "days"))<=2){
+    $(taskEl).addClass("list-group-item-warning");
+  } 
+  
+  //ensure element is getting to the function
+  //console.log(taskEl);
+};
+
+// ------------------------
+// main -------------------
+// ------------------------
+
+// load tasks for the first time
+loadTasks();

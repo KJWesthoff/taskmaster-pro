@@ -80,18 +80,29 @@ $(this).replaceWith(taskP);
 
 // click due date event listener
 $(".list-group").on("click", "span", function(){
-// get the text
-var date = $(this).text().trim();
+  // get the text
+  var date = $(this).text().trim();
 
-//new date
-var dateInput = $("<input>").attr("type","text").addClass("form-control").val(date);
+  //new date
+  var dateInput = $("<input>").attr("type","text").addClass("form-control").val(date);
 
-$(this).replaceWith(dateInput);
-dateInput.trigger("focus");
+  $(this).replaceWith(dateInput);
+  dateInput.datepicker({
+    minDate: 1,
+    onClose: function(){
+      $(this).trigger("change");
+    }
+
+  });
+
+  dateInput.trigger("focus");
+
 });
 
+
+
 //blur date eventlistener
-$(".list-group").on("blur", "input[type='text']",function(){
+$(".list-group").on("change", "input[type='text']",function(){
   
   // get items info text and where it belongs
   var date = $(this).val().trim();
@@ -225,5 +236,9 @@ $("#remove-tasks").on("click", function() {
 
 // load tasks for the first time
 loadTasks();
+
+$("#modalDueDate").datepicker({
+  minDate: 1
+});
 
 
